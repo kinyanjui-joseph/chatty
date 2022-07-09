@@ -43,7 +43,6 @@ const store = Vuex.createStore({
   loadData({commit}) {
   axios.get(URL).then((response) => {
   commit('addMessage', response.data)
-  commit('clearForm')
   commit('changeLoadingState', false)
 
   })
@@ -57,15 +56,18 @@ const store = Vuex.createStore({
   	});
 
     socket.emit('message', json);
+    store.commit('clearForm')
+    alert('sent')
 
     socket.on('message',async function(msg) {
-      alert('sent')
-      console.log(msg) 
-     /* let messages = document.getElementById('thread-item');
+      console.log(msg)
+      /*
+      let messages = document.getElementById('thread-item');
       let item = document.createElement('li');
       item.textContent = msg;
-      messages.appendChild(item);
-      //store.dispatch('loadData') /////COMMENT/*/
+    messages.appendChild(item);
+    window.scrollTo(0, document.body.scrollHeight);
+      //store.dispatch('loadData') */
     });
 
   }

@@ -1,4 +1,4 @@
-window.onscroll = function() {myFunction()};
+//window.onscroll = function() {myFunction()};
 
 var header = document.getElementById("logo");
 var sticky = header.offsetTop;

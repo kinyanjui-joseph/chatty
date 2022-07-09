@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const http = require('http');
 const server = http.createServer(app);
+require('dotenv').config()
 const { Server } = require("socket.io");
 const io = new Server(server, {
   cors: {
@@ -22,7 +23,7 @@ const Message = mongoose.model('Message',{
   message : String
 })
 
-const dbUrl = 'mongodb+srv://pristineDev:mYstr0ngPass@cluster0.enlwx.mongodb.net/?retryWrites=true&w=majority'
+const dbUrl = process.env.MONGOCONNECTION
 
 app.get('/messages', (req, res) => {
   Message.find({},(err, messages)=> {
@@ -47,6 +48,7 @@ io.on('connection', (socket) => {
   console.log('a user connected')
   socket.on('message', async function(msg){
     console.log(msg)
+    io.emit('message', msg);
     /**const message = new Message(msg);
   message.save((err) =>{
     if(err)
