@@ -12,6 +12,7 @@ const io = new Server(server, {
 });
 const mongoose = require('mongoose');
 const cors = require('cors');
+const timestamp = require('time-stamp');
 
 app.use(express.static(__dirname));
 app.use(express.json());
@@ -20,7 +21,9 @@ app.use(cors());
 
 const Message = mongoose.model('Message',{
   name : String,
-  message : String
+  message : String,
+  id: String,
+  time: String
 })
 
 const dbUrl = process.env.MONGOCONNECTION
@@ -47,6 +50,7 @@ mongoose.connect(dbUrl, () => {
 io.on('connection', (socket) => {
   console.log('a user connected')
   socket.on('message', async function(msg){
+   // newMsg = 
     console.log(msg)
     io.emit('message', msg);
     /**const message = new Message(msg);

@@ -16,6 +16,7 @@
     "mongoose": "^6.3.4",
     "nodemon": "^2.0.16",
     "socket.io": "^4.5.1",
+    "time-stamp": "^2.2.0",
     "vue-socket.io": "^3.0.10"
   }
 }

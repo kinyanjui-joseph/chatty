@@ -9,7 +9,10 @@ const store = Vuex.createStore({
       online: true,
       users_online: 52,
       loading: true,
-      handle: ""
+    //  clearNewMsg: tur
+      handle: "",
+      newMsg:[
+      ],
     }
   },
   mutations: {
@@ -22,8 +25,14 @@ const store = Vuex.createStore({
     addMessage(state, data){
     	state.thread.push(data)
     },
+    addNewMsg(state, msg) { 
+      state.newMsg.push(msg)
+    },
+    clearNewMsg(state) {
+      state.newMsg = []
+    },
     changeLoadingState(state, loading) {
-    state.loading = loading
+      state.loading = loading
     },
     clearForm(state){
       state.name = "",
@@ -37,6 +46,9 @@ const store = Vuex.createStore({
   	},
     MESSAGE(){
       return state.message
+    },
+    NEWMSG(state){
+      return state.newMsg
     }
   },
   actions: {
@@ -44,11 +56,16 @@ const store = Vuex.createStore({
   axios.get(URL).then((response) => {
   commit('addMessage', response.data)
   commit('changeLoadingState', false)
-
+  commit('clearNewMsg')
   })
   },
   async sendTxt(){
-  	const json = JSON.stringify({ name: this.state.name, message: this.state.message });
+  	const json = JSON.stringify({ 
+      name: this.state.name,
+      message: this.state.message,
+      id: Math.random().toString(16).slice(2),
+      time: Math.floor(Date.now() / 1000)
+    });
     const res = await axios.post(URL, json, {
   	headers: {
   	'Content-Type': 'application/json'
@@ -60,14 +77,8 @@ const store = Vuex.createStore({
     alert('sent')
 
     socket.on('message',async function(msg) {
-      console.log(msg)
-      /*
-      let messages = document.getElementById('thread-item');
-      let item = document.createElement('li');
-      item.textContent = msg;
-    messages.appendChild(item);
-    window.scrollTo(0, document.body.scrollHeight);
-      //store.dispatch('loadData') */
+     // console.log(msg) 
+      store.commit('addNewMsg', msg)
     });
 
   }
@@ -129,7 +140,17 @@ const msgForm = {
 		'messageUpdator','addMessage'
 	]),
 	async sendMessage(){
-		this.$store.dispatch('sendTxt')
+    let x = document.forms["form"]["fname"].value;
+    let y = document.forms["form"]["message"].value;
+    if (x == "") {
+      alert("Please provide your name!");
+      return false;
+    }
+    if (y == "") {
+      alert("Please provide your message!");
+      return false;
+    }
+      this.$store.dispatch('sendTxt')
 	},
   },
   template: `
@@ -138,12 +159,12 @@ const msgForm = {
   		  <h3 class="form-header">Send Message</h3>
       </div>
   		<div class="name-wrp">  
-        <label for="name">User:</label>                                      
-        <input id="name" class="form-control" autocomplete="off" v-model="namer" placeholder="Username">                                     
+        <label for="fname">User:</label>                                      
+        <input name="fname" id="name" maxlength="10" class="form-control" autocomplete="off" v-model="namer" placeholder="Username">                                     
   		</div>  
       <div class="message-wrp">
         <label for="message">message</label>                       			     
-        <textarea id="message" class="form-control" v-model="messanger" placeholder="Type your message here"> 
+        <textarea id="message" maxlength="150" name="message" class="form-control" v-model="messanger" placeholder="Type your message here"> 
         </textarea> 
       </div>                                      
   	  <div class="btn-wrp">                                            
@@ -156,10 +177,20 @@ const msgForm = {
 const messages = {
   computed: {
   	...Vuex.mapState([
-  		'message', 'thread', 'loading'
+  		'message', 'thread', 'loading', 'newMsg'
     ]),
     ...Vuex.mapGetters([
-    ])
+      'NEWMSG'
+    ]),
+    NEWMSG(){
+      return this.newMsg
+    }
+  },
+  watch:{
+    NEWMSG(newNEWMSG, oldNEWMSG){
+        console.log(newNEWMSG.length)
+    //  store.commit('addNewMsg', newNEWMSG)
+    }
   },
   methods: {
   	...Vuex.mapMutations([
@@ -177,10 +208,18 @@ const messages = {
       <p>Loading...</p>
     </div>
     <div v-else>
-      <div id="thread-item"
-      v-for="txt in thread[0]"
-      :key="txt._id"
-      >
+    <div id="thread-item"
+    v-for="msg in NEWMSG"
+    :key="msg.id"
+    >
+      <h4 class="name-field"><span style="font-weight: bold">Name:</span> {{msg.name}}</h4>
+      <p class="message-field"><span style="font-weight: bold">Message:</span> {{msg.message}}</p>
+    </div>
+
+    <div id="thread-item"
+    v-for="txt in thread[0]"
+    :key="txt._id"
+    >
         <h4 class="name-field"><span style="font-weight: bold">Name:</span> {{txt.name}}</h4>
         <p class="message-field"><span style="font-weight: bold">Message:</span> {{txt.message}}</p>
       </div>
