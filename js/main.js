@@ -3,16 +3,17 @@ const URL = 'http://localhost:3000/messages'
 const store = Vuex.createStore({
   state () {
     return {
-      name: "",
-      message: "",
+      name: "joe",
+      message: "test 5",
       thread:[],
       online: true,
       users_online: 52,
       loading: true,
     //  clearNewMsg: tur
       handle: "",
-      newMsg:[
-      ],
+      newMsg:[],
+      isConnected: false,
+      sockeMessage: ''
     }
   },
   mutations: {
@@ -25,8 +26,9 @@ const store = Vuex.createStore({
     addMessage(state, data){
     	state.thread.push(data)
     },
-    addNewMsg(state, msg) { 
-      state.newMsg.push(msg)
+    addNewMsg(state, payload) { 
+      state.newMsg.push(payload)
+      console.log(`The NEW MSG we get: ${payload}`)
     },
     clearNewMsg(state) {
       state.newMsg = []
@@ -38,7 +40,20 @@ const store = Vuex.createStore({
       state.name = "",
       state.message = ""
      // alert('cleared')
+    },
+
+    SOCKET_CONNECT(state) {
+      state.isConnected = true;
+    },
+
+    SOCKET_DISCONNECT(state) {
+      state.isConnected = false;
+    },
+
+    SOCKET_MESSAGECHANNEL(state, message) {
+      state.socketMessage = message
     }
+
   },
   getters: {
   	results (){
@@ -76,10 +91,12 @@ const store = Vuex.createStore({
     store.commit('clearForm')
     alert('sent')
 
-    socket.on('message',async function(msg) {
+    /*socket.on('message',async function(msg) {
      // console.log(msg) 
       store.commit('addNewMsg', msg)
-    });
+      console.log(`The MESSAGE we get: ${msg}`)
+
+    });*/
 
   }
   }
@@ -177,30 +194,66 @@ const msgForm = {
 const messages = {
   computed: {
   	...Vuex.mapState([
-  		'message', 'thread', 'loading', 'newMsg'
+  		'name', 'message', 'thread', 'loading', 'newMsg', 'isConnected', 'socketMessage'
     ]),
     ...Vuex.mapGetters([
-      'NEWMSG'
+    //  'NEWMSG'
     ]),
-    NEWMSG(){
+    /*NEWMSG(){
       return this.newMsg
-    }
+    }*/
   },
   watch:{
     NEWMSG(newNEWMSG, oldNEWMSG){
-        console.log(newNEWMSG.length)
-    //  store.commit('addNewMsg', newNEWMSG)
+       /*/ console.log(newNEWMSG)
+       if(newNEWMSG){
+       // store.commit('addNewMsg', this.NEWMSG)
+       }
+    /*/ 
+    }
+  },
+  sockets: {
+    connect() {
+      // Fired when the socket connects.
+      this.isConnected = true;
+    },
+
+    disconnect() {
+      this.isConnected = false;
+    },
+
+    // Fired when the server sends something on the "messageChannel" channel.
+    messageChannel(data) {
+      this.socketMessage = data
+      console.log(data)
     }
   },
   methods: {
   	...Vuex.mapMutations([
   	]),
+    pingServer() {
+      const json = JSON.stringify({ 
+        name: this.name,
+        message: this.message,
+        id: Math.random().toString(16).slice(2),
+        time: Math.floor(Date.now() / 1000)
+      });
+      // Send the "pingServer" event to the server.
+    //  socket.emit('message', json)
+      store.commit('addNewMsg', json)
+    }
   },
   beforeUpdate() {
-   // this.$store.dispatch('loadData')
+  //  this.$store.dispatch('loadData')
+    //console.log(this.newMsg[0])
   },
   template: `
   <div class="messages">
+    <div>
+      <p v-if="isConnected">We're connected</p>    
+      <p>message from server: "{{socketMessage}}"</p>
+      <button @click="pingServer()">Ping Server</button>
+    </div>
     <div class="messages-header">
       <h3> Messages</h3>
     </div>
@@ -209,11 +262,13 @@ const messages = {
     </div>
     <div v-else>
     <div id="thread-item"
-    v-for="msg in NEWMSG"
+    v-for="(msg, index) in newMsg"
+    :msg="msg"
+    :index="index"
     :key="msg.id"
     >
-      <h4 class="name-field"><span style="font-weight: bold">Name:</span> {{msg.name}}</h4>
-      <p class="message-field"><span style="font-weight: bold">Message:</span> {{msg.message}}</p>
+      <h4 class="name-field"><span style="font-weight: bold">Name:</span> {{msg.id}}</h4>
+      <p class="message-field"><span style="font-weight: bold">Message:</span> {{msg.name}}</p>
     </div>
 
     <div id="thread-item"

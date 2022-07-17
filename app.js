@@ -50,9 +50,9 @@ mongoose.connect(dbUrl, () => {
 io.on('connection', (socket) => {
   console.log('a user connected')
   socket.on('message', async function(msg){
-   // newMsg = 
-    console.log(msg)
     io.emit('message', msg);
+    console.log(`MESSAGE: ${msg}`)
+    
     /**const message = new Message(msg);
   message.save((err) =>{
     if(err)
