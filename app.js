@@ -51,7 +51,7 @@ io.on('connection', (socket) => {
   console.log('a user connected')
   socket.on('message', async function(msg){
     io.emit('message', msg);
-    console.log(`MESSAGE: ${msg}`)
+    console.log(msg)
   })
 
   socket.on('disconnect', () => {

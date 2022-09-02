@@ -14,27 +14,9 @@ const store = Vuex.createStore({
           "time": "1662106337",
           "__v": 0
         },
-        {
-          "_id": "6311bae1c587ba9p7c5474b50",
-          "name": "test 2",
-          "message": "222222222",
-          "id": "a8f6abb5dadfe",
-          "time": "1662106337",
-          "__v": 0
-        },
-        {
-          "_id": "6311bae1c587ba97c54u4b50",
-          "name": "test 3",
-          "message": "33333333",
-          "id": "a8f6abb5dadfe",
-          "time": "1662106337",
-          "__v": 0
-        },
       ],
       online: true,
       loading: true,
-      isConnected: false,
-      sockeMessage: ''
     }
   },
   mutations: {
@@ -46,7 +28,6 @@ const store = Vuex.createStore({
     },
     addMessage(state, data){
       for(i=0;i<data.length;i++){
-         // console.log(data[i])
       state.thread.push(data[i])
       }
     },
@@ -61,18 +42,6 @@ const store = Vuex.createStore({
       state.name = "",
       state.message = ""
     },
-    SOCKET_CONNECT(state) {
-      state.isConnected = true;
-    },
-
-    SOCKET_DISCONNECT(state) {
-      state.isConnected = false;
-    },
-
-    SOCKET_MESSAGECHANNEL(state, message) {
-      state.socketMessage = message
-    }
-
   },
   getters: {
   	results (){
@@ -87,8 +56,6 @@ const store = Vuex.createStore({
   axios.get(URL).then((response) => {
     let data = response.data
   commit('addMessage', data)
-  //console.log(response)
- // console.log(response.data)
   commit('changeLoadingState', false)
   })
   },
@@ -104,14 +71,17 @@ const store = Vuex.createStore({
       message: this.state.message,
       id: Math.random().toString(16).slice(2),
       time: Math.floor(Date.now() / 1000)
-    });
+    });/*
    const res = await axios.post(URL, json, {
   	headers: {
   	'Content-Type': 'application/json'
   	}
-  	});
-    store.commit('updateThread',new_msg)
-    socket.emit('message', new_msg);
+  	});*/
+    //store.commit('updateThread',new_msg)
+    socket.emit('message', json);
+    socket.on('message', function(msg){
+      store.commit('updateThread',JSON.parse(msg))
+    })
     store.commit('clearForm')
     alert('sent')
   }
@@ -215,45 +185,12 @@ const messages = {
     ]),
     ...Vuex.mapGetters([]),
   },
-  sockets: {
-    connect() {
-      // Fired when the socket connects.
-      this.isConnected = true;
-      console.log('connneccttteeed')
-    },
-
-    disconnect() {
-      this.isConnected = false;
-    },
-
-    // Fired when the server sends something on the "messageChannel" channel.
-    messageChannel(data) {
-      this.socketMessage = data
-      console.log(data)
-    }
-  },
   methods: {
   	...Vuex.mapMutations([
   	]),
-    pingServer() {
-      const json = JSON.stringify({ 
-        name: this.name,
-        message: this.message,
-        id: Math.random().toString(16).slice(2),
-        time: Math.floor(Date.now() / 1000)
-      });
-      // Send the "pingServer" event to the server.
-      socket.emit('message', json)
-      store.commit('addMessage', json)
-    }
   },
   template: `
   <div class="messages">
-    <!--div>
-      <p v-if="isConnected">We're connected</p>    
-      <p>message from server: "{{newMsg}}"</p>
-      <button @click="pingServer()">Ping Server</button>
-    </div-->
     <div class="messages-header">
       <h3> Messages</h3>
     </div>
