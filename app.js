@@ -52,13 +52,6 @@ io.on('connection', (socket) => {
   socket.on('message', async function(msg){
     io.emit('message', msg);
     console.log(`MESSAGE: ${msg}`)
-    
-    /**const message = new Message(msg);
-  message.save((err) =>{
-    if(err)
-      sendStatus(500);
-    res.sendStatus(200);
-  })*/
   })
 
   socket.on('disconnect', () => {

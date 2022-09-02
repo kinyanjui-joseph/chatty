@@ -63,9 +63,6 @@ button{
 	text-decoration-color: #755A9F;
 }
 
-.logo i{	
-}
-
 .tag-line{
 	font-weight:bold;
 	font-style:italic;
@@ -119,7 +116,6 @@ label{
 }
 
 .form-header-wrp h3{
-	color: ;
 	text-decoration: underline;
 	text-decoration-color: #002E63;
 }
@@ -132,7 +128,6 @@ label{
 	justify-content: space-around;
 	padding: 1px;
 	border-radius: 3em;
-	//padding-left: 0.3em;
 	border-bottom:1px solid #002E63;
 }
 
@@ -162,8 +157,6 @@ label{
 	padding: 3px;
 	border-radius: 1em;
 	border-bottom:1px solid #002E63;
-
-	//padding-left: 0.3em;
 }
 
 .message-wrp textarea{
@@ -217,7 +210,6 @@ label{
 }
 
 .messages{
-	//border: 1px solid;
 	width: 92%;
 	margin: auto;
 	box-shadow: 11px 2px 31px -22px rgba(143,16,255,0.75);
@@ -226,7 +218,6 @@ label{
 }
 
 .messages-header{
-//	border: 1px solid;
 	display:flex;
 	justify-content:center;
 	align-items:center;
@@ -247,28 +238,11 @@ label{
 }
 
 #thread-item:nth-child(odd){
-//	background-image: linear-gradient(to right top, #755a9f, #8260a6, #8e65ac, #9b6bb3, #a871b9);
 	background:rgb(255,163,228,0.15);
 }
 
 #thread-item:nth-child(even){
 	background:rgba(67,68,130,0.15);
-}
-
-#thread-item:nth-child(odd) h4{
-//	background-image: linear-gradient(to right top, #755a9f, #8260a6, #8e65ac, #9b6bb3, #a871b9);
-}
-
-#thread-item:nth-child(even) h4{
-//	background-image: linear-gradient(to left bottom, #002e63, #18336b, #283973, #363e7a, #434482);
-}
-
-#thread-item:nth-child(odd) p{
-//	background-image: linear-gradient(to right top, #755a9f, #8260a6, #8e65ac, #9b6bb3, #a871b9);
-}
-
-#thread-item:nth-child(even) p{
-//	background-image: linear-gradient(to left bottom, #002e63, #18336b, #283973, #363e7a, #434482);
 }
 
 .name-field{

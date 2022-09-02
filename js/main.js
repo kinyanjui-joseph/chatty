@@ -3,35 +3,56 @@ const URL = 'http://localhost:3000/messages'
 const store = Vuex.createStore({
   state () {
     return {
-      name: "joe",
-      message: "test 5",
-      thread:[],
+      name: "",
+      message: "",
+      thread:[
+        {
+          "_id": "6311bae1c587ba97c5474b0",
+          "name": "test 1",
+          "message": "111111111",
+          "id": "a8f6abb5dadfe",
+          "time": "1662106337",
+          "__v": 0
+        },
+        {
+          "_id": "6311bae1c587ba9p7c5474b50",
+          "name": "test 2",
+          "message": "222222222",
+          "id": "a8f6abb5dadfe",
+          "time": "1662106337",
+          "__v": 0
+        },
+        {
+          "_id": "6311bae1c587ba97c54u4b50",
+          "name": "test 3",
+          "message": "33333333",
+          "id": "a8f6abb5dadfe",
+          "time": "1662106337",
+          "__v": 0
+        },
+      ],
       online: true,
-      users_online: 52,
       loading: true,
-    //  clearNewMsg: tur
-      handle: "",
-      newMsg:[],
       isConnected: false,
       sockeMessage: ''
     }
   },
   mutations: {
-    nameUpdator(state, value){
-    	state.name = value
+    nameUpdator(state, name){
+    	state.name = name
     },
-    messageUpdator(state, value){
-    	state.message = value
+    messageUpdator(state, message){
+    	state.message = message
     },
     addMessage(state, data){
-    	state.thread.push(data)
+      for(i=0;i<data.length;i++){
+         // console.log(data[i])
+      state.thread.push(data[i])
+      }
     },
-    addNewMsg(state, payload) { 
-      state.newMsg.push(payload)
-      console.log(`The NEW MSG we get: ${payload}`)
-    },
-    clearNewMsg(state) {
-      state.newMsg = []
+    updateThread(state,json){
+      state.thread.push(json)
+      console.log(json)
     },
     changeLoadingState(state, loading) {
       state.loading = loading
@@ -39,9 +60,7 @@ const store = Vuex.createStore({
     clearForm(state){
       state.name = "",
       state.message = ""
-     // alert('cleared')
     },
-
     SOCKET_CONNECT(state) {
       state.isConnected = true;
     },
@@ -62,42 +81,39 @@ const store = Vuex.createStore({
     MESSAGE(){
       return state.message
     },
-    NEWMSG(state){
-      return state.newMsg
-    }
   },
   actions: {
   loadData({commit}) {
   axios.get(URL).then((response) => {
-  commit('addMessage', response.data)
+    let data = response.data
+  commit('addMessage', data)
+  //console.log(response)
+ // console.log(response.data)
   commit('changeLoadingState', false)
-  commit('clearNewMsg')
   })
   },
-  async sendTxt(){
+  async sendMsg(){
+    const new_msg = { 
+      name: this.state.name,
+      message: this.state.message,
+      id: Math.random().toString(16).slice(2),
+      time: Math.floor(Date.now() / 1000)
+    };
   	const json = JSON.stringify({ 
       name: this.state.name,
       message: this.state.message,
       id: Math.random().toString(16).slice(2),
       time: Math.floor(Date.now() / 1000)
     });
-    const res = await axios.post(URL, json, {
+   const res = await axios.post(URL, json, {
   	headers: {
   	'Content-Type': 'application/json'
   	}
   	});
-
-    socket.emit('message', json);
+    store.commit('updateThread',new_msg)
+    socket.emit('message', new_msg);
     store.commit('clearForm')
     alert('sent')
-
-    /*socket.on('message',async function(msg) {
-     // console.log(msg) 
-      store.commit('addNewMsg', msg)
-      console.log(`The MESSAGE we get: ${msg}`)
-
-    });*/
-
   }
   }
 })
@@ -115,16 +131,16 @@ const navigation = {
   	]),
   },
   template: `
-   		<div class="header">
-   			<div class="logo-wrap" id="logo">
-   				<h1 class="logo">Chatty <i class="fa-solid fa-screen-users"></i></h1>
-   				<span class="tag-line">Secure group chat you can trust</span>
-   			</div>
-   			<div class="status">
-   				<h4 class="online" v-show="online">Users online:{{thread.length}}</h4>
-   				<h4 class="offline" v-show="!online">OFFLINE</h4>
-   			</div>
-   		</div>  
+    <div class="header">
+      <div class="logo-wrap" id="logo">
+        <h1 class="logo">Chatty <i class="fa-solid fa-screen-users"></i></h1>
+        <span class="tag-line">Secure group chat you can trust</span>
+      </div>
+      <div class="status">
+        <h4 class="online" v-show="online">Users online:{{thread.length}}</h4>
+        <h4 class="offline" v-show="!online">OFFLINE</h4>
+      </div>
+    </div>  
   `
 }
 
@@ -135,20 +151,20 @@ const msgForm = {
     ]),
     ...Vuex.mapGetters([
     ]),
-    messanger: {
+    message: {
     	get () {
     		return this.$store.state.message
     	},
-    	set (value) {
-    		this.$store.commit('messageUpdator', value)
+    	set (message) {
+    		this.$store.commit('messageUpdator', message)
     	}
     },
-    namer: {
+    name: {
     	get () {
     		return this.$store.state.name
     	},
-    	set (value) {
-    		this.$store.commit('nameUpdator', value)
+    	set (name) {
+    		this.$store.commit('nameUpdator',name)
     	}
     }
   },
@@ -167,9 +183,10 @@ const msgForm = {
       alert("Please provide your message!");
       return false;
     }
-      this.$store.dispatch('sendTxt')
+      this.$store.dispatch('sendMsg')
 	},
   },
+  /*html*/
   template: `
   	<form class="container" id="form" v-on:submit.prevent="sendMessage">
   		<div class="form-header-wrp">
@@ -177,11 +194,11 @@ const msgForm = {
       </div>
   		<div class="name-wrp">  
         <label for="fname">User:</label>                                      
-        <input name="fname" id="name" maxlength="10" class="form-control" autocomplete="off" v-model="namer" placeholder="Username">                                     
+        <input name="fname" id="name" maxlength="10" class="form-control" autocomplete="off" v-model="name" placeholder="Username">                                     
   		</div>  
       <div class="message-wrp">
         <label for="message">message</label>                       			     
-        <textarea id="message" maxlength="150" name="message" class="form-control" v-model="messanger" placeholder="Type your message here"> 
+        <textarea id="message" maxlength="150" name="message" class="form-control" v-model="message" placeholder="Type your message here"> 
         </textarea> 
       </div>                                      
   	  <div class="btn-wrp">                                            
@@ -196,26 +213,13 @@ const messages = {
   	...Vuex.mapState([
   		'name', 'message', 'thread', 'loading', 'newMsg', 'isConnected', 'socketMessage'
     ]),
-    ...Vuex.mapGetters([
-    //  'NEWMSG'
-    ]),
-    /*NEWMSG(){
-      return this.newMsg
-    }*/
-  },
-  watch:{
-    NEWMSG(newNEWMSG, oldNEWMSG){
-       /*/ console.log(newNEWMSG)
-       if(newNEWMSG){
-       // store.commit('addNewMsg', this.NEWMSG)
-       }
-    /*/ 
-    }
+    ...Vuex.mapGetters([]),
   },
   sockets: {
     connect() {
       // Fired when the socket connects.
       this.isConnected = true;
+      console.log('connneccttteeed')
     },
 
     disconnect() {
@@ -239,21 +243,17 @@ const messages = {
         time: Math.floor(Date.now() / 1000)
       });
       // Send the "pingServer" event to the server.
-    //  socket.emit('message', json)
-      store.commit('addNewMsg', json)
+      socket.emit('message', json)
+      store.commit('addMessage', json)
     }
-  },
-  beforeUpdate() {
-  //  this.$store.dispatch('loadData')
-    //console.log(this.newMsg[0])
   },
   template: `
   <div class="messages">
-    <div>
+    <!--div>
       <p v-if="isConnected">We're connected</p>    
-      <p>message from server: "{{socketMessage}}"</p>
+      <p>message from server: "{{newMsg}}"</p>
       <button @click="pingServer()">Ping Server</button>
-    </div>
+    </div-->
     <div class="messages-header">
       <h3> Messages</h3>
     </div>
@@ -262,27 +262,16 @@ const messages = {
     </div>
     <div v-else>
     <div id="thread-item"
-    v-for="(msg, index) in newMsg"
-    :msg="msg"
-    :index="index"
+    v-for="msg in thread"
     :key="msg.id"
-    >
-      <h4 class="name-field"><span style="font-weight: bold">Name:</span> {{msg.id}}</h4>
-      <p class="message-field"><span style="font-weight: bold">Message:</span> {{msg.name}}</p>
-    </div>
-
-    <div id="thread-item"
-    v-for="txt in thread[0]"
-    :key="txt._id"
-    >
-        <h4 class="name-field"><span style="font-weight: bold">Name:</span> {{txt.name}}</h4>
-        <p class="message-field"><span style="font-weight: bold">Message:</span> {{txt.message}}</p>
+    > 
+        <h4 class="name-field"><span style="font-weight: bold">Name:</span> {{msg.name}}</h4>
+        <p class="message-field"><span style="font-weight: bold">Message:</span> {{msg.message}}</p>
       </div>
     </div>
 </div>
   `,
 }
-
 
 const chat = {
   components:{
@@ -308,7 +297,6 @@ const chat = {
   	</div>
   `,
 }
-
 
 const app = Vue.createApp({
   components:{
