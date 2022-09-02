@@ -1,4 +1,5 @@
 const URL = 'http://localhost:3000/messages'
+var socket = io();
 
 const store = Vuex.createStore({
   state () {
