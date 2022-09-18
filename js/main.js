@@ -6,16 +6,7 @@ const store = Vuex.createStore({
     return {
       name: "",
       message: "",
-      thread:[
-        {
-          "_id": "6311bae1c587ba97c5474b0",
-          "name": "test 1",
-          "message": "111111111",
-          "id": "a8f6abb5dadfe",
-          "time": "1662106337",
-          "__v": 0
-        },
-      ],
+      thread:[],
       online: true,
       loading: true,
     }
@@ -44,14 +35,7 @@ const store = Vuex.createStore({
       state.message = ""
     },
   },
-  getters: {
-  	results (){
-  		return state.result
-  	},
-    MESSAGE(){
-      return state.message
-    },
-  },
+  getters: {},
   actions: {
   loadData({commit}) {
   axios.get(URL).then((response) => {
@@ -61,28 +45,27 @@ const store = Vuex.createStore({
   })
   },
   async sendMsg(){
-    const new_msg = { 
+    /*const new_msg = { 
       name: this.state.name,
       message: this.state.message,
       id: Math.random().toString(16).slice(2),
       time: Math.floor(Date.now() / 1000)
-    };
+    };*/
   	const json = JSON.stringify({ 
       name: this.state.name,
       message: this.state.message,
       id: Math.random().toString(16).slice(2),
       time: Math.floor(Date.now() / 1000)
-    });/*
-   const res = await axios.post(URL, json, {
+    });
+    socket.emit('message', json);
+    socket.on('message', function(json){
+      store.commit('updateThread',JSON.parse(json))
+    })
+    const res = await axios.post(URL, json, {
   	headers: {
   	'Content-Type': 'application/json'
   	}
-  	});*/
-    //store.commit('updateThread',new_msg)
-    socket.emit('message', json);
-    socket.on('message', function(msg){
-      store.commit('updateThread',JSON.parse(msg))
-    })
+  	});
     store.commit('clearForm')
     alert('sent')
   }

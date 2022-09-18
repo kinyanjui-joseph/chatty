@@ -39,7 +39,7 @@ app.post('/messages', (req, res) => {
   message.save((err) =>{
     if(err)
     sendStatus(500);
-    res.sendStatus(200);
+    //   v   sendStatus(200);
   })
 })
 
