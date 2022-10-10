@@ -1,4 +1,4 @@
-const URL = 'http://localhost:3000/messages'
+const URL = 'https://pristine-chatty.herokuapp.com/messages'
 var socket = io();
 
 const store = Vuex.createStore({
@@ -61,11 +61,11 @@ const store = Vuex.createStore({
     socket.on('message', function(json){
       store.commit('updateThread',JSON.parse(json))
     })
-    const res = await axios.post(URL, json, {
+    /*const res = await axios.post(URL, json, {
   	headers: {
   	'Content-Type': 'application/json'
   	}
-  	});
+  	});*/
     store.commit('clearForm')
     alert('sent')
   }
