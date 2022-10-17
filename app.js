@@ -37,10 +37,10 @@ app.get('/messages', (req, res) => {
 
 app.post('/messages', (req, res) => {
   const message = new Message(req.body);
+  io.emit('message', message)
   message.save((err) =>{
     if(err)
     sendStatus(500);
-    //   v   sendStatus(200);
   })
 })
 
@@ -51,9 +51,9 @@ mongoose.connect(dbUrl, () => {
 io.on('connection', (socket) => {
   console.log('a user connected')
   socket.on('message', async function(msg){
-    io.emit('message', msg);
     console.log(msg)
   })
+ // socket.broadcast.emit('message', msg);
 
   socket.on('disconnect', () => {
     console.log('user disconnected');

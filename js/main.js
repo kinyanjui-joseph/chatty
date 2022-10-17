@@ -1,5 +1,9 @@
-const URL = 'https://pristine-chatty.herokuapp.com/messages'
+const URL = 'http://127.0.0.1:3000/messages'
 var socket = io();
+
+socket.on('message', function(json){
+  store.commit('updateThread',json)
+})
 
 const store = Vuex.createStore({
   state () {
@@ -25,7 +29,7 @@ const store = Vuex.createStore({
     },
     updateThread(state,json){
       state.thread.push(json)
-      console.log(json)
+   //   console.log(JSON.parse(json))
     },
     changeLoadingState(state, loading) {
       state.loading = loading
@@ -37,35 +41,27 @@ const store = Vuex.createStore({
   },
   getters: {},
   actions: {
-  loadData({commit}) {
+  async loadData({commit}) {
   axios.get(URL).then((response) => {
     let data = response.data
   commit('addMessage', data)
   commit('changeLoadingState', false)
   })
   },
-  async sendMsg(){
-    /*const new_msg = { 
-      name: this.state.name,
-      message: this.state.message,
-      id: Math.random().toString(16).slice(2),
-      time: Math.floor(Date.now() / 1000)
-    };*/
+  sendMsg(){
   	const json = JSON.stringify({ 
       name: this.state.name,
       message: this.state.message,
       id: Math.random().toString(16).slice(2),
       time: Math.floor(Date.now() / 1000)
     });
-    socket.emit('message', json);
-    socket.on('message', function(json){
-      store.commit('updateThread',JSON.parse(json))
-    })
-    /*const res = await axios.post(URL, json, {
-  	headers: {
-  	'Content-Type': 'application/json'
-  	}
-  	});*/
+
+    const res = axios.post(URL, json, {
+      headers: {
+      'Content-Type': 'application/json'
+      }
+      });
+
     store.commit('clearForm')
     alert('sent')
   }
@@ -183,7 +179,7 @@ const messages = {
     </div>
     <div v-else>
     <div id="thread-item"
-    v-for="msg in thread"
+    v-for="(msg, index) in thread"
     :key="msg.id"
     > 
         <h4 class="name-field"><span style="font-weight: bold">Name:</span> {{msg.name}}</h4>
