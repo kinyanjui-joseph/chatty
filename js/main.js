@@ -1,4 +1,4 @@
-const URL = 'http://127.0.0.1:3000/messages'
+const URL = 'https://pristine-chatty.herokuapp.com/messages'
 var socket = io();
 
 socket.on('message', function(json){
