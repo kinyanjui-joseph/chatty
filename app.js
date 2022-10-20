@@ -2,13 +2,12 @@ const express = require('express');
 const app = express();
 const http = require('http');
 const server = http.createServer(app);
-const dotenv = require("dotenv");
-dotenv.config({ path: '.env'});
+require("dotenv").config();
 const { Server } = require("socket.io");
 const io = new Server(server, {
   cors: {
-    origin: "*",
-    methods: ["GET", "POST"]
+      origin: "https://kinyanjui-joseph.github.io/chatty/",
+      credentials: true
   }
 });
 const mongoose = require('mongoose');
@@ -20,14 +19,14 @@ app.use(express.json());
 app.use(express.urlencoded());
 app.use(cors());
 
+const dbUrl = process.env.MONGOCONNECTION
+
 const Message = mongoose.model('Message',{
   name : String,
   message : String,
   id: String,
   time: String
 })
-
-const dbUrl = process.env.MONGOCONNECTION
 
 app.get('/messages', (req, res) => {
   Message.find({},(err, messages)=> {
