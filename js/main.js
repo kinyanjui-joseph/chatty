@@ -1,5 +1,5 @@
 const URL = 'https://pristine-chatty.herokuapp.com/messages/'
-var socket = io('https://pristine-chatty.herokuapp.com/');
+var socket = io('ws://pristine-chatty.herokuapp.com/');
 
 socket.on('message', function(json){
   store.commit('updateThread',json)
