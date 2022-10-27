@@ -6,7 +6,7 @@ require("dotenv").config();
 const { Server } = require("socket.io");
 const io = new Server(server, {
   cors: {
-      origin: "https://kinyanjui-joseph.github.io/chatty/",
+      origin: "*",
       credentials: true
   }
 });
