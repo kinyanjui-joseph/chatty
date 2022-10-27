@@ -1,5 +1,5 @@
-const URL = 'http://127.0.0.1:3000/messages/'
-var socket = io('');
+const URL = 'https://pristine-chatty.herokuapp.com/messages/'
+var socket = io('https://pristine-chatty.herokuapp.com/');
 
 socket.on('message', function(json){
   store.commit('updateThread',json)
@@ -92,6 +92,70 @@ const navigation = {
       </div>
     </div>  
   `
+}
+
+const login_form = {
+  computed: {
+  	...Vuex.mapState([
+  		'name','message'
+    ]),
+    ...Vuex.mapGetters([
+    ]),
+    message: {
+    	get () {
+    		return this.$store.state.message
+    	},
+    	set (message) {
+    		this.$store.commit('messageUpdator', message)
+    	}
+    },
+    name: {
+    	get () {
+    		return this.$store.state.name
+    	},
+    	set (name) {
+    		this.$store.commit('nameUpdator',name)
+    	}
+    }
+  },
+  methods: {
+	...Vuex.mapMutations([
+		'messageUpdator','addMessage'
+	]),
+	async sendMessage(){
+    let x = document.forms["form"]["fname"].value;
+    let y = document.forms["form"]["message"].value;
+    if (x == "") {
+      alert("Please provide your name!");
+      return false;
+    }
+    if (y == "") {
+      alert("Please provide your message!");
+      return false;
+    }
+      this.$store.dispatch('sendMsg')
+	},
+  },
+  /*html*/
+  template: `
+  	<form class="container" id="form" v-on:submit.prevent="sendMessage">
+  		<div class="form-header-wrp">
+  		  <h3 class="form-header">Send Message</h3>
+      </div>
+  		<div class="name-wrp">  
+        <label for="fname">User:</label>                                      
+        <input name="fname" id="name" maxlength="10" class="form-control" autocomplete="off" v-model="name" placeholder="Username">                                     
+  		</div>  
+      <div class="message-wrp">
+        <label for="message">message</label>                       			     
+        <textarea id="message" maxlength="150" name="message" class="form-control" v-model="message" placeholder="Type your message here"> 
+        </textarea> 
+      </div>                                      
+  	  <div class="btn-wrp">                                            
+  	    <button id="send" class="btn" >Send</button>
+      </div>
+  	</form>
+  `,
 }
 
 const msgForm = {

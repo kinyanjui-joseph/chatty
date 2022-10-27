@@ -5,10 +5,7 @@ const server = http.createServer(app);
 require("dotenv").config();
 const { Server } = require("socket.io");
 const io = new Server(server, {
-  cors: {
-      origin: "*",
-      credentials: true
-  }
+  cors: { origin: "*" }
 });
 const mongoose = require('mongoose');
 const cors = require('cors');
