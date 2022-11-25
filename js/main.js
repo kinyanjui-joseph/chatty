@@ -1,5 +1,5 @@
-const URL = 'http://127.0.0.1:3000/messages/'
-var socket = io();
+const URL = 'https://pristine-chatty.herokuapp.com/messages/'
+var socket = io('https://pristine-chatty.herokuapp.com/');
 
 socket.on('message', function(json){
   store.commit('updateThread',json)
