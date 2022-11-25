@@ -1,8 +1,9 @@
+require('dotenv').config();
+
 const express = require('express');
 const app = express();
 const http = require('http');
 const server = http.createServer(app);
-require("dotenv").config();
 const { Server } = require("socket.io");
 const io = new Server(server, {
   cors: { origin: "*" }
@@ -55,6 +56,18 @@ io.on('connection', (socket) => {
     console.log('user disconnected');
   });
 });
+
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization']
+  const token = authHeader && authHeader.split(' ')[1]
+  if(token == null) return res.sendStatus(401)
+
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+      if(err) return res.sendStatus(403)
+      req.user = user
+      next()
+  })
+}
 
 const port = process.env.PORT || 3000;
 
