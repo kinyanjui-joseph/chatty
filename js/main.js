@@ -14,6 +14,7 @@ const store = Vuex.createStore({
       password:"",
       reg_user_name: "",
       reg_password: "",
+      access_token: "",
       to_login: true,
       thread:[],
       online: true,
@@ -39,6 +40,9 @@ const store = Vuex.createStore({
     reg_password_updator(state, reg_password){
       state.reg_password = reg_password
     },
+    update_token(state, accessToken){
+      state.access_token = access_token
+    },
     update_to_login(state){
       state.to_login = !state.to_login
     },
@@ -61,6 +65,10 @@ const store = Vuex.createStore({
     clear_login_form(state){
       state.user_name = "",
       state.password = ""
+    },
+    clear_reg_login_form(state){
+      state.reg_user_name = "",
+      state.reg_password = ""
     },
   },
   getters: {},
@@ -89,43 +97,39 @@ const store = Vuex.createStore({
     store.commit('clearForm')
     alert('sent')
   },
-  auth_user(){
-  	const json = JSON.stringify({ 
-      name: this.state.user_name,
-      message: this.state.password,
-      id: Math.random().toString(16).slice(2),
-      time: Math.floor(Date.now() / 1000)
+  async auth_user(){
+  	const user = JSON.stringify({ 
+      user_name: this.state.user_name,
+      password: this.state.password
     });
 
-    console.log(json)
-/*
-    const res = axios.post(URL, json, {
+    console.log(user)
+
+    const res = await axios.post('http://localhost:3000/login', user, {
       headers: {
       'Content-Type': 'application/json'
       }
       });
-*/
+    store.commit('update_token', res.data.accessToken)
     store.commit('clear_login_form')
     alert('sent')
   },
   reg_user(){
-  	const json = JSON.stringify({ 
-      reg_user_name: this.state.reg_user_name,
-      reg_password: this.state.reg_password,
-      id: Math.random().toString(16).slice(2),
-      time: Math.floor(Date.now() / 1000)
+  	const user = JSON.stringify({ 
+      user_name: this.state.reg_user_name,
+      password: this.state.reg_password,
     });
 
-    console.log(json)
-/*
-    const res = axios.post(URL, json, {
+    console.log(user)
+
+    const res = axios.post('http://localhost:3000/users', user, {
       headers: {
       'Content-Type': 'application/json'
       }
       });
-*/
-    store.commit('clear_login_form')
-    alert('sent')
+
+    store.commit('clear_reg_login_form')
+    alert('user registered successfully!')
   }
   }
 })
@@ -165,7 +169,7 @@ const navigation = {
 const login = {
   computed: {
   	...Vuex.mapState([
-  		'user_name','password', 'to_login'
+  		'user_name','password', 'to_login', 'access_token'
     ]),
     ...Vuex.mapGetters([
     ]),
@@ -277,6 +281,8 @@ const login = {
         <button id="reg_to_login" type="button" class="btn btn2" @click="to_reg">Login</button>
       </div>
   	</form>
+
+    <p>{{access_token}}</p>
   `,
 }
 

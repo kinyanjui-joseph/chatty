@@ -11,6 +11,8 @@ const io = new Server(server, {
 const mongoose = require('mongoose');
 const cors = require('cors');
 const timestamp = require('time-stamp');
+const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 
 app.use(express.static(__dirname));
 app.use(express.json());
@@ -20,15 +22,27 @@ app.use(cors());
 const dbUrl = process.env.MONGOCONNECTION
 
 const Message = mongoose.model('Message',{
-  name : String,
+  user_name : String,
   message : String,
   id: String,
   time: String
 })
 
-app.get('/messages', (req, res) => {
+const User = mongoose.model('User',{
+  user_name : String,
+  password : String,
+})
+
+app.get('/messages', authenticateToken, (req, res) => {
   Message.find({},(err, messages)=> {
-    res.send(messages);
+    messages.filter(msg => msg.user_name === req.user_name)
+    res.send(msg);
+  })
+})
+
+app.get('/users', (req, res) => {
+  User.find({},(err, users)=> {
+    res.send(users);
   })
 })
 
@@ -38,6 +52,44 @@ app.post('/messages', (req, res) => {
   message.save((err) =>{
     if(err)
     sendStatus(500);
+  })
+})
+
+app.post('/users', async (req, res) => {
+  console.log(req.body.user_name)
+  try{
+      const hashedPassword = await bcrypt.hash(req.body.password, 10)
+      
+      const user = new User({user_name : req.body.user_name, password: hashedPassword})
+      console.log(user)
+      user.save(user)
+      res.status(201).send()
+  } catch {
+      res.status(500).send()
+  }
+})
+
+app.post('/login', async (req, res) => {
+  User.find({}, async (err, users)=> {
+    const user = users.find(user_name => user_name.user_name == req.body.user_name)
+   
+     if(user == null){
+   return res.status(400).send('user not found')
+  }
+  try{
+   if(await bcrypt.compare(req.body.password, user.password)) {
+       //const response = 
+       const accessToken = jwt.sign(req.body, process.env.ACCESS_TOKEN_SECRET)
+       //console.log(accessToken)
+       res.json({accessToken : accessToken})
+       res.send('success')
+   } else {
+       res.send('not allowed')
+   }
+  } catch{
+   res.status(500).send()
+  }
+
   })
 })
 
