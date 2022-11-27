@@ -1,4 +1,4 @@
-const URL = 'https://pristine-chatty.herokuapp.com/messages/'
+const URL = 'http://localhost:3000/messages/'
 var socket = io('https://pristine-chatty.herokuapp.com/');
 
 socket.on('message', function(json){
@@ -11,6 +11,7 @@ const store = Vuex.createStore({
       name: "",
       message: "",
       user_name:"",
+      receiver_user_name:"joe",
       password:"",
       reg_user_name: "",
       reg_password: "",
@@ -40,16 +41,17 @@ const store = Vuex.createStore({
     reg_password_updator(state, reg_password){
       state.reg_password = reg_password
     },
-    update_token(state, accessToken){
+    update_token(state, access_token){
       state.access_token = access_token
     },
     update_to_login(state){
       state.to_login = !state.to_login
     },
     addMessage(state, data){
-      for(i=0;i<data.length;i++){
+      state.thread.push(data)
+      /*for(i=0;i<data.length;i++){
       state.thread.push(data[i])
-      }
+      }*/
     },
     updateThread(state,json){
       state.thread.push(json)
@@ -74,21 +76,31 @@ const store = Vuex.createStore({
   getters: {},
   actions: {
   async loadData({commit}) {
-  axios.get(URL).then((response) => {
+    const config = {
+      headers: { Authorization: `Bearer ${this.state.access_token}` }
+  };
+  axios.get(URL, config).then((response) => {
     let data = response.data
+    console.log(data)
   commit('addMessage', data)
   commit('changeLoadingState', false)
   })
   },
-  sendMsg(){
+  async sendMsg(){
+    if(this.state.access_token == ""){
+      alert('empty')
+      return false
+    }
+
   	const json = JSON.stringify({ 
-      name: this.state.name,
+      user_name: this.state.user_name,
+      receiver: this.state.receiver_user_name,
       message: this.state.message,
       id: Math.random().toString(16).slice(2),
       time: Math.floor(Date.now() / 1000)
     });
 
-    const res = axios.post(URL, json, {
+     const res = await axios.post(URL, json, {
       headers: {
       'Content-Type': 'application/json'
       }
@@ -111,7 +123,7 @@ const store = Vuex.createStore({
       }
       });
     store.commit('update_token', res.data.accessToken)
-    store.commit('clear_login_form')
+    //store.commit('clear_login_form')
     alert('sent')
   },
   reg_user(){
@@ -222,6 +234,9 @@ const login = {
       return false;
     }
       this.$store.dispatch('auth_user')
+
+      document.forms["login_form"]["user_name"].value = ''
+      document.forms["login_form"]["password"].value= ''
 	},
   async register(){
     let x = document.forms["register_form"]["reg_user_name"].value;
@@ -286,7 +301,7 @@ const login = {
   `,
 }
 
-const msgForm = {
+const msg_form = {
   computed: {
   	...Vuex.mapState([
   		'name','message'
@@ -315,12 +330,7 @@ const msgForm = {
 		'messageUpdator','addMessage'
 	]),
 	async sendMessage(){
-    let x = document.forms["form"]["fname"].value;
     let y = document.forms["form"]["message"].value;
-    if (x == "") {
-      alert("Please provide your name!");
-      return false;
-    }
     if (y == "") {
       alert("Please provide your message!");
       return false;
@@ -333,11 +343,7 @@ const msgForm = {
   	<form class="container" id="form" v-on:submit.prevent="sendMessage">
   		<div class="form-header-wrp">
   		  <h3 class="form-header">Send Message</h3>
-      </div>
-  		<div class="name-wrp">  
-        <label for="fname">User:</label>                                      
-        <input name="fname" id="name" maxlength="10" class="form-control" autocomplete="off" v-model="name" placeholder="Username">                                     
-  		</div>  
+      </div> 
       <div class="message-wrp">
         <label for="message">message</label>                       			     
         <textarea id="message" maxlength="150" name="message" class="form-control" v-model="message" placeholder="Type your message here"> 
@@ -356,13 +362,23 @@ const chats = {
   		'name', 'message', 'thread', 'loading', 'newMsg', 'isConnected', 'socketMessage'
     ]),
     ...Vuex.mapGetters([]),
+   /* user_name(){
+      return this.$route.params
+    }*/
   },
   methods: {
   	...Vuex.mapMutations([
   	]),
   },
+  components:{
+    msg_form
+  },
+  created() {
+    this.$store.dispatch('loadData')
+  },
   template: `
   <div class="messages">
+    <msg_form></msg_form>
     <div class="messages-header">
       <h3> Messages</h3>
     </div>
@@ -374,7 +390,7 @@ const chats = {
     v-for="(msg, index) in thread"
     :key="msg.id"
     > 
-        <h4 class="name-field"><span style="font-weight: bold">Name:</span> {{msg.name}}</h4>
+        <h4 class="name-field"><span style="font-weight: bold">Name:</span> {{msg.user_name}}</h4>
         <p class="message-field"><span style="font-weight: bold">Message:</span> {{msg.message}}</p>
       </div>
     </div>
@@ -382,9 +398,13 @@ const chats = {
   `,
 }
 
+const NotFoundComponent = {
+  template: "<div><h4>404: PAGE NOT FOUND </h4></div>",
+};
+
 const chatty = {
   components:{
-  	navigation,msgForm,chats
+  	navigation,msg_form,chats
   },
   computed: {
   	...Vuex.mapState([
@@ -409,6 +429,7 @@ const chatty = {
 const routes = [
   { path: '/', component: login },
   { path: '/chats', component: chats },
+  { path: '/:pathMatch(.*)', component: NotFoundComponent }
 ]
 
 
@@ -421,9 +442,6 @@ const router = VueRouter.createRouter({
 const app = Vue.createApp({
   components:{
   	chatty
-  },
-  created() {
-  this.$store.dispatch('loadData')
   },
   template:`
   	<chatty></chatty>

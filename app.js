@@ -23,6 +23,7 @@ const dbUrl = process.env.MONGOCONNECTION
 
 const Message = mongoose.model('Message',{
   user_name : String,
+  receiver:String,
   message : String,
   id: String,
   time: String
@@ -33,10 +34,31 @@ const User = mongoose.model('User',{
   password : String,
 })
 
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization']
+  const token = authHeader && authHeader.split(' ')[1]
+  if(token == null) return res.sendStatus(401)
+
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+      if(err) return res.sendStatus(403)
+      req.user = user
+      console.log(user)
+      next()
+  })
+}
+
 app.get('/messages', authenticateToken, (req, res) => {
   Message.find({},(err, messages)=> {
-    messages.filter(msg => msg.user_name === req.user_name)
+    const authHeader = req.headers['authorization']
+    const token = authHeader && authHeader.split(' ')[1]
+    const x = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+      //if(err) return res.sendStatus(403)
+      return req.user = user
+    
+    })
+    const msg = messages.find(msg => msg.user_name == x.user_name)
     res.send(msg);
+    
   })
 })
 
@@ -108,18 +130,6 @@ io.on('connection', (socket) => {
     console.log('user disconnected');
   });
 });
-
-function authenticateToken(req, res, next) {
-  const authHeader = req.headers['authorization']
-  const token = authHeader && authHeader.split(' ')[1]
-  if(token == null) return res.sendStatus(401)
-
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-      if(err) return res.sendStatus(403)
-      req.user = user
-      next()
-  })
-}
 
 const port = process.env.PORT || 3000;
 
