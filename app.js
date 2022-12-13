@@ -51,11 +51,18 @@ app.get('/messages', authenticateToken, (req, res) => {
   Message.find({},(err, messages)=> {
     const authHeader = req.headers['authorization']
     const token = authHeader && authHeader.split(' ')[1]
+
     const x = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-      //if(err) return res.sendStatus(403)
+      if(err) return res.sendStatus(403)
       return req.user = user
     
     })
+    
+
+    if(x.user_name == null){
+      return res.status(400)
+    }
+
     const msg = messages.find(msg => msg.user_name == x.user_name)
     res.send(msg);
     
@@ -95,9 +102,9 @@ app.post('/login', async (req, res) => {
   User.find({}, async (err, users)=> {
     const user = users.find(user_name => user_name.user_name == req.body.user_name)
    
-     if(user == null){
-   return res.status(400).send('user not found')
-  }
+      if(user == null){
+        return res.status(400).send('user not found')
+      }
   try{
    if(await bcrypt.compare(req.body.password, user.password)) {
        //const response = 
