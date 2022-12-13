@@ -7,6 +7,7 @@ body{
 }
 
 h1,h2,h3,h4,h5,h6{
+	margin: 0;
 	font-family: 'Syne', sans-serif;
 }
 
@@ -37,23 +38,48 @@ button{
 }
 
 .header{
-	background:rgb(255,163,228,0.15);
-	display:flex;
-	flex-direction:column;
-	justify-content:space-around;
+	background-image: linear-gradient(to right bottom, #f0e7f3, #eee5f2, #ede2f1, #ebe0ef, #eaddee, #e7d9ec, #e5d4ea, #e2d0e8, #ddc9e4, #d9c1e1, #d4badd, #d0b3d9);
 }
 
 .logo-wrap{
-	padding-left:0.5em;
-	border: 1px solid;
-	width: 100%;
-	background-image:linear-gradient(to right bottom, rgb(0,46,99,0.66), rgb(53,62,122,0.75), rgb(92,79,145,0.75), rgb(130,96,166,0.75), rgb(168,113,185,0.66));
+	display: flex;
+	flex-direction: column;
+	justify-content: space-around;
+	padding-left: 1em;
 }
 
 .logo{
-	line-height:0.9;
-	font-family: 'Syne', sans-serif;
-	font-weight: 900;
+	background-image: linear-gradient(to top, #002e63, #363e7a, #5c4f91, #8260a6, #a971b9, #b275bd, #ba79c1, #c37dc5, #af74bc, #9c6bb3, #8863a9, #755a9f);
+	background-clip:text;
+	-webkit-background-clip:text;
+	-webkit-text-fill-color: transparent;
+	-webkit-text-stroke: 0.5px #D0B3D9;
+}
+
+.nav-bar{
+	display: flex;
+	justify-content: center;
+}
+
+.nav-section{
+	width: 100%;
+	display: flex;
+	padding-left: 1em;
+	//justify-content: center;
+}
+
+.nav-item{
+	color: #141527;
+}
+
+.router-link-active{
+	color: #a971b9;
+}
+
+/*.logo{
+	//line-height:0.9;
+	//font-family: 'Syne', sans-serif;
+	//font-weight: 900;
 	background-image: linear-gradient(to top, #002e63, #363e7a, #5c4f91, #8260a6, #a971b9, #b275bd, #ba79c1, #c37dc5, #af74bc, #9c6bb3, #8863a9, #755a9f);
 	background-clip:text;
 	-webkit-background-clip:text;
@@ -62,22 +88,19 @@ button{
 	text-decoration: underline;
 	text-decoration-color: #755A9F;
 }
+*/
 
 .tag-line{
 	font-weight:bold;
 	font-style:italic;
 	font-family: 'Syne', sans-serif; 
 	background-image: linear-gradient(to bottom, #ffa3e4, #db90d4, #b77dc3, #946bb0, #715a9d, #5e5192, #4a4786, #363e7a, #2c3a74, #20366f, #133269, #002e63);
-	-webkit-text-stroke: 0.25px #fff;
+	//-webkit-text-stroke: 0.25px #fff;
 	background-clip:text;
 	-webkit-background-clip:text;
 	-webkit-text-fill-color: transparent;
 }
 
-.status{
-	border-bottom: 1px dashed lavender;
-	padding-left: 1em;
-}
 
 .sticky {
 	position: fixed;
@@ -89,7 +112,7 @@ button{
 	padding-top: 102px;
 }
 
-#form{
+#form, #login_form, #register_form{
 	border:1px solid #434482;
 	border-radius:5px;
 	width: 90%;
@@ -107,7 +130,7 @@ label{
 	color: #002E63;
 }
 
-.form-header-wrp{
+.form-header-wrp, .login_form_header_wrp, .register_form_wrp{
 	height: 2em;
 	padding: 2px;
 	display:flex;
@@ -115,12 +138,12 @@ label{
 	align-items:center;
 }
 
-.form-header-wrp h3{
+.form-header-wrp h3, .login_form_header_wrp h3, .register_form_header_wrp h3{
 	text-decoration: underline;
 	text-decoration-color: #002E63;
 }
 
-.name-wrp{
+.name-wrp, .user_name_wrp{
 	width: 90%;
 	height: 2.5em;
 	display:flex;
@@ -131,7 +154,7 @@ label{
 	border-bottom:1px solid #002E63;
 }
 
-.name-wrp input{
+.name-wrp input, .user_name_wrp input, .password_wrp input{
 	background: rgb(117,90,159,0.45);
 	width: 70%;
 	height: 66%;
@@ -144,11 +167,11 @@ label{
 
 }
 
-.name-wrp input:focus,.message-wrp textarea:focus{
+.name-wrp input:focus, .user_name_wrp input:focus, .message-wrp textarea:focus, .password_wrp input:focus{
 	border: 0.5px solid #A871B9;
 }
 
-.message-wrp{
+.message-wrp, .password_wrp{
 	width: 90%;
 	height: 5em;
 	display:flex;
@@ -159,7 +182,7 @@ label{
 	border-bottom:1px solid #002E63;
 }
 
-.message-wrp textarea{
+.message-wrp textarea, .password_wrp input{
 	background: rgb(117,90,159,0.45);
 	width: 70%;
 	height: 80%;
@@ -170,7 +193,7 @@ label{
 	border-top-right-radius: 5px;
 }
 
-.message-wrp textarea::placeholder,.name-wrp input::placeholder{
+.message-wrp textarea::placeholder,.name-wrp input::placeholder, .password_wrp input::placeholder,.user_name_wrp input::placeholder{
 	font-style: italic;
 	color: #002E63;
 	font-family: 'Syne', sans-serif;
@@ -187,12 +210,15 @@ label{
 	margin-bottom: 0.5em;
 }
 
+.btn-wrp .btn2{
+	margin-left: 1em;
+}
+
 .btn{
 	border: 0.5px solid #A871B9;
 	width: 33%;
 	padding: 2px;
 	font-weight: bold;
-	font-size: large;
 	border-radius: 3em;
 	color: #002E63;
 	background-image: linear-gradient(to bottom, #f0e7f3, #eee5f2, #ede2f1, #ebe0ef, #eaddee, #e7d9ec, #e5d4ea, #e2d0e8, #ddc9e4, #d9c1e1, #d4badd, #d0b3d9);
